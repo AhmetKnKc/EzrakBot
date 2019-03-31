@@ -121,11 +121,10 @@ client.on('message', async msg => { // eslint-disable-line
 	} else if (command === 'ses') {
 		if (!msg.member.voiceChannel) return msg.channel.send('Ses kanalında değilsin!');
 		if (!serverQueue) return msg.channel.send('Herhangi bir müzk çalmıyor.');
-    if(!msg.member.hasPermission("MANAGE_ROLES")) return msg.channel.send('Bunu yapmak için yetkin yok.');
-		if (!args[1] && msg.member.hasPermission("MANAGE_ROLES") || msg.member.id == '295503660903825408')
+		if (!args[1]) return msg.channel.send(`Yeni müzik sesinin değeri: **${serverQueue.volume}**`);
 		serverQueue.volume = args[1];
 		serverQueue.connection.dispatcher.setVolumeLogarithmic(args[1] / 5);
-		return msg.channel.send(`Yeni müzik sesinin değeri: **${args[1]}**`);
+		return msg.channel.send(`I set the volume to: **${args[1]}**`);
 	} else if (command === 'np') {
 		if (!serverQueue) return msg.channel.send('There is nothing playing.');
 		return msg.channel.send(`🎶 Now playing: **${serverQueue.songs[0].title}**`);
@@ -217,10 +216,7 @@ function play(guild, song) {
 	serverQueue.textChannel.send(`🎶 Müzik başlatıldı. Başlatılan müzik: **${song.title}**`);
 }
 
-bot.login(process.env.BOT_TOKEN);
-
-
-
+client.login(TOKEN);
 
 
 
