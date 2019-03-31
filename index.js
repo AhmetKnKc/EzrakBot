@@ -8,18 +8,6 @@ require('./util/eventLoader')(bot);
 
 var prefix = ayarlar.prefix;
  
-
-const Discord = require('discord.js');
-const bot = new Discord.Client();
-const ayarlar = require('./ayarlar.json');
-const chalk = require('chalk');
-const fs = require('fs');
-const moment = require('moment');
-require('./util/eventLoader')(bot);
-
-var prefix = ayarlar.prefix;
- 
-
 const { Client, Util } = require('discord.js');
 const { TOKEN, PREFIX, GOOGLE_API_KEY } = require('./config');
 const YouTube = require('simple-youtube-api');
