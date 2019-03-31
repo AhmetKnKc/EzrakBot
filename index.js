@@ -217,8 +217,7 @@ function play(guild, song) {
 	serverQueue.textChannel.send(`🎶 Müzik başlatıldı. Başlatılan müzik: **${song.title}**`);
 }
 
-client.login(TOKEN);
-
+bot.login(process.env.BOT_TOKEN);
 
 
 
