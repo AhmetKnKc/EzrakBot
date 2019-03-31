@@ -8,6 +8,7 @@ require('./util/eventLoader')(bot);
 
 var prefix = ayarlar.prefix;
  
+
 const { Client, Util } = require('discord.js');
 const { TOKEN, PREFIX, GOOGLE_API_KEY } = require('./config');
 const YouTube = require('simple-youtube-api');
@@ -214,109 +215,6 @@ client.login(TOKEN);
 
 
 
-const log = message => {
-  console.log(`[${moment().format('YYYY-MM-DD HH:mm:ss')}] ${message}`);
-};
-
-bot.commands = new Discord.Collection();
-bot.aliases = new Discord.Collection();
-fs.readdir('./komutlar/', (err, files) => {
-  if (err) console.error(err);
-  log(`${files.length} komut yüklenecek.`);
-  files.forEach(f => {
-    let props = require(`./komutlar/${f}`);
-    log(`Yüklenen komut: ${props.help.name}.`);
-    bot.commands.set(props.help.name, props);
-    props.conf.aliases.forEach(alias => {
-      bot.aliases.set(alias, props.help.name);
-    });
-  });
-});
-
-bot.reload = command => {
-  return new Promise((resolve, reject) => {
-    try {
-      delete require.cache[require.resolve(`./komutlar/${command}`)];
-      let cmd = require(`./komutlar/${command}`);
-      bot.commands.delete(command);
-      bot.aliases.forEach((cmd, alias) => {
-        if (cmd === command) bot.aliases.delete(alias);
-      });
-      bot.commands.set(command, cmd);
-      cmd.conf.aliases.forEach(alias => {
-        bot.aliases.set(alias, cmd.help.name);
-      });
-      resolve();
-    } catch (e){
-      reject(e);
-    }
-  });
-};
-
-bot.load = command => {
-  return new Promise((resolve, reject) => {
-    try {
-      let cmd = require(`./komutlar/${command}`);
-      bot.commands.set(command, cmd);
-      cmd.conf.aliases.forEach(alias => {
-        bot.aliases.set(alias, cmd.help.name);
-      });
-      resolve();
-    } catch (e){
-      reject(e);
-    }
-  });
-};
-
-bot.unload = command => {
-  return new Promise((resolve, reject) => {
-    try {
-      delete require.cache[require.resolve(`./komutlar/${command}`)];
-      let cmd = require(`./komutlar/${command}`);
-      bot.commands.delete(command);
-      bot.aliases.forEach((cmd, alias) => {
-        if (cmd === command) bot.aliases.delete(alias);
-      });
-      resolve();
-    } catch (e){
-      reject(e);
-    }
-  });
-};
-
-bot.on('message', msg => {
-  if (msg.content.toLowerCase() === 'sa') {
-	msg.reply('Aleyküm selam, hoş geldin ^^');
-	}
-});
-
-bot.elevation = message => {
-  if(!message.guild) {
-	return; }
-  let permlvl = 0;
-  if (message.member.hasPermission("BAN_MEMBERS")) permlvl = 2;
-  if (message.member.hasPermission("ADMINISTRATOR")) permlvl = 3;
-  if (message.author.id === ayarlar.sahip) permlvl = 4;
-  return permlvl;
-};
-
-var regToken = /[\w\d]{24}\.[\w\d]{6}\.[\w\d-_]{27}/g;
-
-bot.on('warn', e => {
-  console.log(chalk.bgYellow(e.replace(regToken, 'that was redacted')));
-});
-
-bot.on('error', e => {
-  console.log(chalk.bgRed(e.replace(regToken, 'that was redacted')));
-});
-
-
-
-
-
-
-
-
 
 
 
@@ -416,8 +314,6 @@ bot.on('warn', e => {
 bot.on('error', e => {
   console.log(chalk.bgRed(e.replace(regToken, 'that was redacted')));
 });
-
-
 
 
 
