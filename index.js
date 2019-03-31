@@ -42,15 +42,15 @@ client.on('message', async msg => { // eslint-disable-line
 	let command = msg.content.toLowerCase().split(' ')[0];
 	command = command.slice(PREFIX.length)
 
-	if (command === 'oynat') {
+	if (command === 'play') {
 		const voiceChannel = msg.member.voiceChannel;
-		if (!voiceChannel) return msg.channel.send('Bir müzik kanalına katılıp tekrar deneyin.');
+		if (!voiceChannel) return msg.channel.send('I\'m sorry but you need to be in a voice channel to play music!');
 		const permissions = voiceChannel.permissionsFor(msg.client.user);
 		if (!permissions.has('CONNECT')) {
-			return msg.channel.send('Müzik çalamıyorum. Lütfen izinlerimin tam olduğundan emin olun.');
+			return msg.channel.send('I cannot connect to your voice channel, make sure I have the proper permissions!');
 		}
 		if (!permissions.has('SPEAK')) {
-			return msg.channel.send('Ses kanalına katılamıyorum. Lütfen izinlerimin tam olduğundan emin olun.');
+			return msg.channel.send('I cannot speak in this voice channel, make sure I have the proper permissions!');
 		}
 
 		if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {
@@ -67,15 +67,12 @@ client.on('message', async msg => { // eslint-disable-line
 			} catch (error) {
 				try {
 					var videos = await youtube.searchVideos(searchString, 10);
-					let index = 0;          
-          var embed = new Discord.RichEmbed()
-          .setColor('GREEN')
-          .addField(`__**Müzik Seçin:**__`, `${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}
-
-**Listeden 1-10 arasında bir sayı seçiniz. 1 ve 10 geçerlidir.**`)
-          msg.channel.send(embed);
-          
-          
+					let index = 0;
+					msg.channel.send(`
+__**Song selection:**__
+${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}
+Please provide a value to select one of the search results ranging from 1-10.
+					`);
 					// eslint-disable-next-line max-depth
 					try {
 						var response = await msg.channel.awaitMessages(msg2 => msg2.content > 0 && msg2.content < 11, {
@@ -96,49 +93,48 @@ client.on('message', async msg => { // eslint-disable-line
 			}
 			return handleVideo(video, msg, voiceChannel);
 		}
-	} else if (command === 'geç') {
-		if (!msg.member.voiceChannel) return msg.channel.send('Ses kanalında değilsin!');
-		if (!serverQueue) return msg.channel.send('Müzik listesi bomboş.');
+	} else if (command === 'skip') {
+		if (!msg.member.voiceChannel) return msg.channel.send('You are not in a voice channel!');
+		if (!serverQueue) return msg.channel.send('There is nothing playing that I could skip for you.');
 		serverQueue.connection.dispatcher.end('Skip command has been used!');
 		return undefined;
-	} else if (command === 'kapat') {
-		if (!msg.member.voiceChannel) return msg.channel.send('Ses kanalında değilsin!');
-		if (!serverQueue) return msg.channel.send('Herhangi birşey çalmıyor.');
+	} else if (command === 'stop') {
+		if (!msg.member.voiceChannel) return msg.channel.send('You are not in a voice channel!');
+		if (!serverQueue) return msg.channel.send('There is nothing playing that I could stop for you.');
 		serverQueue.songs = [];
 		serverQueue.connection.dispatcher.end('Stop command has been used!');
 		return undefined;
-	} else if (command === 'ses') {
-		if (!msg.member.voiceChannel) return msg.channel.send('Ses kanalında değilsin!');
-		if (!serverQueue) return msg.channel.send('Herhangi bir müzk çalmıyor.');
-    if(!msg.member.hasPermission("MANAGE_ROLES")) return msg.channel.send('Bunu yapmak için yetkin yok.');
-		if (!args[1] && msg.member.hasPermission("MANAGE_ROLES") || msg.member.id == '295503660903825408')
+	} else if (command === 'volume') {
+		if (!msg.member.voiceChannel) return msg.channel.send('You are not in a voice channel!');
+		if (!serverQueue) return msg.channel.send('There is nothing playing.');
+		if (!args[1]) return msg.channel.send(`The current volume is: **${serverQueue.volume}**`);
 		serverQueue.volume = args[1];
 		serverQueue.connection.dispatcher.setVolumeLogarithmic(args[1] / 5);
-		return msg.channel.send(`Yeni müzik sesinin değeri: **${args[1]}**`);
+		return msg.channel.send(`I set the volume to: **${args[1]}**`);
 	} else if (command === 'np') {
 		if (!serverQueue) return msg.channel.send('There is nothing playing.');
 		return msg.channel.send(`🎶 Now playing: **${serverQueue.songs[0].title}**`);
-	} else if (command === 'liste') {
-		if (!serverQueue) return msg.channel.send('Listede herhangi birşey yok.');
+	} else if (command === 'queue') {
+		if (!serverQueue) return msg.channel.send('There is nothing playing.');
 		return msg.channel.send(`
-__**Çalma listesi:**__
+__**Song queue:**__
 ${serverQueue.songs.map(song => `**-** ${song.title}`).join('\n')}
-**Şuanda çalan:** ${serverQueue.songs[0].title}
+**Now playing:** ${serverQueue.songs[0].title}
 		`);
-	} else if (command === 'durdur') {
+	} else if (command === 'pause') {
 		if (serverQueue && serverQueue.playing) {
 			serverQueue.playing = false;
 			serverQueue.connection.dispatcher.pause();
-			return msg.channel.send('⏸ Müzik durduruldu.');
+			return msg.channel.send('⏸ Paused the music for you!');
 		}
-		return msg.channel.send('Herhangi bir müzik çalmıyor.');
-	} else if (command === 'sürdür') {
+		return msg.channel.send('There is nothing playing.');
+	} else if (command === 'resume') {
 		if (serverQueue && !serverQueue.playing) {
 			serverQueue.playing = true;
 			serverQueue.connection.dispatcher.resume();
-			return msg.channel.send('▶ Müzik sürdürülüyor.');
+			return msg.channel.send('▶ Resumed the music for you!');
 		}
-		return msg.channel.send('Herhangi bir müzik durdurulmamış.');
+		return msg.channel.send('There is nothing playing.');
 	}
 
 	return undefined;
@@ -170,15 +166,15 @@ async function handleVideo(video, msg, voiceChannel, playlist = false) {
 			queueConstruct.connection = connection;
 			play(msg.guild, queueConstruct.songs[0]);
 		} catch (error) {
-			console.error(`Ses kanalına katılıp tekrar deneyin. Hata:\n ${error}`);
+			console.error(`I could not join the voice channel: ${error}`);
 			queue.delete(msg.guild.id);
-			return msg.channel.send(`Ses kanalına katılıp tekrar deneyin. Hata:\n ${error}`);
+			return msg.channel.send(`I could not join the voice channel: ${error}`);
 		}
 	} else {
 		serverQueue.songs.push(song);
 		console.log(serverQueue.songs);
 		if (playlist) return undefined;
-		else return msg.channel.send(`✅ Oynatma listesine **${song.title}** Başarıyla eklendi.`);
+		else return msg.channel.send(`✅ **${song.title}** has been added to the queue!`);
 	}
 	return undefined;
 }
@@ -203,10 +199,10 @@ function play(guild, song) {
 		.on('error', error => console.error(error));
 	dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
 
-	serverQueue.textChannel.send(`🎶 Müzik başlatıldı. Başlatılan müzik: **${song.title}**`);
+	serverQueue.textChannel.send(`🎶 Start playing: **${song.title}**`);
 }
 
-client.login(TOKEN);
+client.login(process.env.BOT_TOKEN);
 
 
 
