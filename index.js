@@ -291,7 +291,7 @@ bot.unload = command => {
 
 bot.on('message', msg => {
   if (msg.content.toLowerCase() === 'sa') {
-	msg.channel.send(`Aleyküm selam ${msg.member.name} HoşGeldin.!`);
+	msg.channel.send(`Aleyküm selam ${msg.member.displayName} HoşGeldin.!`);
 	}
 });
 
