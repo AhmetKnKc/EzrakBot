@@ -9,6 +9,25 @@ require('./util/eventLoader')(bot);
 var prefix = ayarlar.prefix;
  
 
+bot.on('guildMemberAdd', member => {
+			var embed = new Discord.RichEmbed()
+			.setThumbnail("https://cdn.discordapp.com/attachments/559993963122262036/561215788875513886/EZRAK001.png")
+			.setColor("GREEN")
+			.setTitle("EzraK Fun Sunucusu")
+			.addBlankField()
+			.addField(`HoşGeldin..! ${member.displayName}`, "­")
+			.setImage(member.user.defaultAvatarURL)	
+	bot.channels.get("559043127109746724").send(embed)
+	});
+
+
+
+
+
+
+
+
+
 const { Client, Util } = require('discord.js');
 const { TOKEN, PREFIX, GOOGLE_API_KEY } = require('./config');
 const YouTube = require('simple-youtube-api');
