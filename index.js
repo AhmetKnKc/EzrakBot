@@ -329,4 +329,4 @@ bot.on('error', e => {
 
 
 
-bot.login(ayarlar.token);
+bot.login(process.env.BOT_TOKEN);
